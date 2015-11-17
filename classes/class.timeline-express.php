@@ -4,7 +4,7 @@
 // http://www.Evan-Herman.com
 /***************************************/
 if(!class_exists("timelineExpressBase"))
-	{
+{
   class timelineExpressBase
 		{
 		
@@ -546,7 +546,7 @@ if(!class_exists("timelineExpressBase"))
 						'default' => $this->timeline_express_optionVal['default-announcement-icon'],
 					) );
 
-					// Email text field
+					// Date field
 					$announcement_metabox->add_field( array(
 						'name' => __( 'Announcement Date', 'timeline-express' ),
 						'desc' => __( 'enter the date of the announcement. the announcements will appear in chronological order according to this date. ', 'timeline-express' ),
@@ -554,6 +554,16 @@ if(!class_exists("timelineExpressBase"))
 						'type' => 'te_date_time_stamp_custom',
 						'default' => strtotime( date( 'm/d/Y' ) ), 
 					) );
+
+					// Display format for date
+					$announcement_metabox->add_field(array(
+					       'name' => __('Date Format', 'timeline-express'),
+					       'desc' => __('enter the format to display the date', 'timeline-express'),
+					       'id'   => $prefix . 'date_format',
+					       'type' => 'text_small',
+					       'default' => 'M j , Y',
+					));
+										
 										
 					// Email text field
 					$announcement_metabox->add_field( array(
@@ -617,6 +627,7 @@ if(!class_exists("timelineExpressBase"))
 					$timeline_express_announcement_columns['color'] = _x('Color', 'timeline-express');
 					$timeline_express_announcement_columns['icon'] = _x('Icon', 'timeline-express');
 					$timeline_express_announcement_columns['announcement_date'] = _x('Announcement Date', 'timeline-express');
+					$timeline_express_announcement_columns['announcement_date_format'] = _x('Date Format', 'timeline-express');
 					$timeline_express_announcement_columns['image'] = _x('Image', 'timeline-express');
 					$timeline_express_announcement_columns['past_announcement'] = _x('Announcement Past?', 'timeline-express');
 					return $timeline_express_announcement_columns;
@@ -642,6 +653,11 @@ if(!class_exists("timelineExpressBase"))
 								echo date( 'l, F jS, Y' , $announcment_date );
 							break;
 						
+					        case 'announcement_date_format':
+						                $date_format = get_post_meta($id, 'announcement_date_format', true);
+								echo $date_format;
+							break;
+	  
 						case 'image':
 								global $wpdb;
 								$announcement_image = get_post_meta( $id , 'announcement_image' , true );								
@@ -821,6 +837,8 @@ if(!class_exists("timelineExpressBase"))
 							// grab the attached image
 							$announcement_image = get_post_meta( $post->ID , 'announcement_image' , true );
 							$announcement_date = get_post_meta( $post->ID , 'announcement_date' , true );
+							$date_format = get_post_meta($post->ID, 'announcement_date_format', true);
+
 							$referer = $_SERVER['HTTP_REFERER'];
 							if ( $announcement_image != '' ) {
 								$announcement_image_id = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", esc_url( $announcement_image) ) ); 
@@ -829,14 +847,14 @@ if(!class_exists("timelineExpressBase"))
 									$announcement_header_image = wp_get_attachment_image_src( $announcement_image_id[0] , 'timeline-express-announcement-header');
 									$custom_content .= '<img class="announcement-banner-image" src="' . esc_url ( $announcement_header_image[0] ) . '" alt="' . get_the_title( $post->ID ) . '">';
 								}
-								$custom_content .= '<strong class="timeline-express-single-page-announcement-date">' . __( 'Announcement Date' , 'timeline-express' ) . ' : ' . date( 'M j , Y' , $announcement_date ) . '</strong>';
+								$custom_content .= '<strong class="timeline-express-single-page-announcement-date">' . __( 'Announcement Date' , 'timeline-express' ) . ' : ' . date( $date_format , $announcement_date ) . '</strong>';
 								$custom_content .= $content;
 								if ( $referer != '' ) {	
 									$custom_content .= '<a href="' . $referer . '" class="return-to-timeline"><i class="fa fa-chevron-left"></i> ' . __( 'Back' , 'timeline-express' ) . '</a>';
 								}
 								return $custom_content;
 							} else {	
-								$custom_content = '<strong class="timeline-express-single-page-announcement-date">' . __( 'Announcement Date' , 'timeline-express' ) . ' : ' . date( 'M j , Y' , $announcement_date ) . '</strong>';
+								$custom_content = '<strong class="timeline-express-single-page-announcement-date">' . __( 'Announcement Date' , 'timeline-express' ) . ' : ' . date( $date_format , $announcement_date ) . '</strong>';
 								$custom_content .= $content;
 								if ( $referer != '' ) {	
 									$custom_content .= '<a href="' . $referer . '" class="return-to-timeline"><i class="fa fa-chevron-left"></i> ' . __( 'Back' , 'timeline-express' ) . '</a>';
